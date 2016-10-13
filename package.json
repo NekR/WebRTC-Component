@@ -2,39 +2,34 @@
   "name": "webrtc-component",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "files": [
+    "lib/"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile": "browserify index.js -o out/index.js",
+    "compile:main": "babel ./src/index.js --out-file ./lib/index.js --presets es2015,react --plugins babel-plugin-add-module-exports",
+    "compile:deps": "browserify src/deps.js -o lib/deps.js -p browserify-derequire --standalone=deps",
+    "compile": "npm run compile:deps && npm run compile:main",
+    "counter:compile": "babel examples/counter/index.js --presets es2015,react | browserify - > examples/counter/compiled.js",
     "hub": "signalhub listen -p 4242",
-    "server": "http-server -p 4141",
-    "start": "npm run compile && npm run server"
+    "counter:server": "http-server examples/counter -p 4141 -c-1",
+    "pre-commit": "npm run compile"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-es2015": "^6.16.0",
     "babel-preset-react": "^6.16.0",
-    "babelify": "^7.3.0",
     "browserify": "^13.1.0",
+    "browserify-derequire": "^0.9.4",
     "http-server": "^0.9.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
-    "signalhub": "^4.7.4",
-    "simple-peer": "^6.0.7",
-    "webrtc-swarm": "^2.8.0"
-  },
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "es2015",
-            "react"
-          ]
-        }
-      ]
-    ]
+    "signalhub": "4.7.4",
+    "simple-peer": "6.0.7",
+    "webrtc-swarm": "2.8.0"
   }
 }

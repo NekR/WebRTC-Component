@@ -1,8 +1,24 @@
-var wrtcswarm = require('webrtc-swarm');
-var signalhub = require('signalhub');
+import { wrtcswarm, signalhub } from './deps';
+import React from 'react';
 
-var React = require('react');
-var ReactDOM = require('react-dom');
+class SyncComponent extends React.Component {
+  constructor(...args) {
+    super(...args);
+    this.sync = new Sync(this);
+  }
+
+  render() {
+    return this.props.children;
+  }
+
+  componentDidMount() {
+    this.sync.connect();
+  }
+
+  componentWillUnmount() {
+    this.sync.disconnect();
+  }
+}
 
 class Sync {
   constructor(component) {
@@ -83,6 +99,8 @@ class Sync {
           } break;
         }
       });
+
+      this.fireEvent('onRemotePeer', id);
     });
 
     swarm.on('disconnect', (peer, id) => {
@@ -259,8 +277,6 @@ class Sync {
 
     if (this.autolock.timeout) {
       this.clearAutolockTimer();
-
-      console.log('autolock timer updated');
       this.autolockTimer = setTimeout(() => {
         this.unlockRemotes();
       }, this.autolock.timeout);
@@ -359,7 +375,7 @@ class Sync {
       this.pendingState = state;
       this.requestLock();
     } else {
-      console.log('setState ignored', state);
+      
     }
   }
 
@@ -375,86 +391,11 @@ class Sync {
 
     return true;
   }
-}
 
-
-class SyncComponent extends React.Component {
-  constructor(...args) {
-    super(...args);
-    this.sync = new Sync(this);
-  }
-
-  render() {
-    return this.props.children;
-  }
-
-  componentDidMount() {
-    this.sync.connect();
-  }
-
-  componentWillUnmount() {
-    this.sync.disconnect();
+  numberOfPeers() {
+    return this.swarm.peers.length;
   }
 }
 
-class Test extends SyncComponent {
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      counter: 0
-    };
-
-    this.tick = () => {
-      this.setState((state, props) => {
-        const newState = {
-          counter: this.state.counter + 1
-        };
-
-        this.sync.setState(newState);
-        return newState;
-      });
-    };
-  }
-
-  onStateReceived(state) {
-    this.setState(state);
-  }
-
-  onLockedBy(data) {
-    this.setState({
-      lockedBy: data.credentials.name
-    });
-  }
-
-  onSelfUnlocked() {
-    this.setState({
-      lockedBy: null
-    })
-  }
-
-  render() {
-    return <div className="test">
-      Counter: { this.state.counter }&nbsp;&nbsp;
-      <button type="button" onClick={ this.tick }>Tick</button>
-      { this.state.lockedBy ?
-        [
-          <hr />,
-          <span style={{ fontSize: '12px', color: 'gray' }}>
-            Locked by: { this.state.lockedBy } ...
-          </span>
-        ]
-        : null
-      }
-    </div>
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  ReactDOM.render(<Test sync={{
-    servers: ['http://192.168.1.50:4242'],
-    name: 'test',
-    credentials: {
-      name: location.hash.slice(1)
-    }
-  }} />, document.querySelector('#app'));
-});
+export default SyncComponent;
+SyncComponent.Sync = Sync;
