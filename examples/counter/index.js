@@ -111,7 +111,7 @@ class App extends React.Component {
   render() {
     if (this.state.connected) {
       return <Counter sync={{
-        servers: ['http://192.168.1.50:4242'],
+        servers: ['http://localhost:4242'],
         name: 'test',
         credentials: {
           name: this.state.name

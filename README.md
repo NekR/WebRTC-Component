@@ -186,3 +186,11 @@ Called when lock request from current component failed.
 #### `onRemotePeer(id)`
 
 Called when other (remote) component (peer) is connected to the current component.
+
+## Run `examples/counter`
+
+1. First install the component if you didn't do that before `npm install`
+2. Run `npm run counter:compile`
+3. In a first console run `npm run hub`
+4. In a second console run `npm run counter:server`
+5. Open http://localhost:4141/ in your browser
