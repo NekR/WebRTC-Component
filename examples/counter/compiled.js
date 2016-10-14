@@ -176,7 +176,7 @@ var App = function (_React$Component) {
 
       if (this.state.connected) {
         return React.createElement(Counter, { sync: {
-            servers: ['http://192.168.1.50:4242'],
+            servers: ['http://localhost:4242'],
             name: 'test',
             credentials: {
               name: this.state.name
@@ -11764,7 +11764,9 @@ var Sync = function () {
     key: 'confirmRemoteLocking',
     value: function confirmRemoteLocking() {
       // Already confirmed
-      if (this.lockingRemote) return;
+      if (this.lockingRemote) {
+        return;
+      }
 
       if (this.lockedBy) {
         // If already locked when confirm arrives,
@@ -11897,8 +11899,7 @@ var Sync = function () {
   }, {
     key: 'cancelLockRequest',
     value: function cancelLockRequest() {
-      var errback = this.lockRequested[1];
-      this.lockRequested = null;
+      this.lockRequested = false;
       this.remotesLockError();
       this.broadcastAction('cancel-lock');
 
@@ -11917,7 +11918,9 @@ var Sync = function () {
     value: function setAutolockTimer() {
       var _this3 = this;
 
-      if (!this.autolock) return;
+      if (!this.autolock) {
+        return;
+      }
 
       if (this.autolock.timeout) {
         this.clearAutolockTimer();
@@ -11953,7 +11956,9 @@ var Sync = function () {
     key: 'sendActionTo',
     value: function sendActionTo(id, name, data) {
       var peer = this.swarm.remotes[id];
-      if (!peer) return false;
+      if (!peer) {
+        return false;
+      }
 
       var payload = void 0;
 
@@ -11973,7 +11978,9 @@ var Sync = function () {
   }, {
     key: 'setInitialState',
     value: function setInitialState(data) {
-      if (!data || !isFinite(data.id) || !data.state) return;
+      if (!data || !isFinite(data.id) || !data.state) {
+        return;
+      }
 
       // If current state is greater than received, then ignore it
       if (isFinite(this.stateId) && this.stateId > data.id) {
@@ -12002,7 +12009,9 @@ var Sync = function () {
   }, {
     key: 'receiveState',
     value: function receiveState(data) {
-      if (!data || !isFinite(data.id) || !data.state) return;
+      if (!data || !isFinite(data.id) || !data.state) {
+        return;
+      }
 
       this.stateId = data.id;
       this.lastState = data.state;
@@ -12025,12 +12034,16 @@ var Sync = function () {
         this.pendingState = state;
         this.requestLock();
       } else {}
+
+      return true;
     }
   }, {
     key: 'fireEvent',
     value: function fireEvent(event, data) {
       var fn = this.component[event] || this.component.props[event];
-      if (!fn) return false;
+      if (!fn) {
+        return false;
+      }
 
       if (arguments.length > 2) {
         fn.apply(this.component, [].slice.call(arguments, 1));
