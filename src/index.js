@@ -53,17 +53,17 @@ class Sync {
     } else {
       this.autolock = {
         // Timeout 5 seconds
-        timeout: 1000 * 5
+        timeout: 1000 * 5,
       };
     }
 
     swarm.on('peer', (peer, id) => {
-      console.log('connected to a new peer:', id)
+      console.log('connected to a new peer:', id);
       console.log('total peers:', swarm.peers.length);
 
       this.sendActionTo(id, 'initial-state', {
         id: this.stateId,
-        state: this.lastState
+        state: this.lastState,
       });
 
       if ((this.lockRequested || this.lockingRemote) && !this.lockedBy) {
@@ -104,8 +104,8 @@ class Sync {
     });
 
     swarm.on('disconnect', (peer, id) => {
-      console.log('disconnected from a peer:', id)
-      console.log('total peers:', swarm.peers.length)
+      console.log('disconnected from a peer:', id);
+      console.log('total peers:', swarm.peers.length);
 
       if (this.lockedBy === id) {
         this.unlockSelf();
@@ -132,7 +132,9 @@ class Sync {
 
   confirmRemoteLocking() {
     // Already confirmed
-    if (this.lockingRemote) return;
+    if (this.lockingRemote) {
+      return;
+    }
 
     if (this.lockedBy) {
       // If already locked when confirm arrives,
@@ -163,7 +165,7 @@ class Sync {
       // Send a error back
 
       this.sendActionTo(id, 'lock-error', {
-        lockingRemote: true
+        lockingRemote: true,
       });
 
       return;
@@ -180,7 +182,7 @@ class Sync {
         // Ignore if already locked by the same peer (probably race happened)
       } else {
         this.sendActionTo(id, 'lock-error', {
-          alreadyLocked: true
+          alreadyLocked: true,
         });
       }
 
@@ -193,7 +195,7 @@ class Sync {
     this.sendActionTo(id, 'self-locked');
     this.fireEvent('onLockedBy', {
       credentials: data.credentials,
-      id: id
+      id: id,
     });
   }
 
@@ -234,7 +236,7 @@ class Sync {
 
   getLockData() {
     return {
-      credentials: this.credentials
+      credentials: this.credentials,
     };
   }
 
@@ -257,8 +259,7 @@ class Sync {
   }
 
   cancelLockRequest() {
-    const errback = this.lockRequested[1];
-    this.lockRequested = null;
+    this.lockRequested = false;
     this.remotesLockError();
     this.broadcastAction('cancel-lock');
 
@@ -273,7 +274,9 @@ class Sync {
   }
 
   setAutolockTimer() {
-    if (!this.autolock) return;
+    if (!this.autolock) {
+      return;
+    }
 
     if (this.autolock.timeout) {
       this.clearAutolockTimer();
@@ -290,7 +293,7 @@ class Sync {
     try {
       payload = JSON.stringify({
         action: name,
-        data: data || null
+        data: data || null,
       });
     } catch (e) {
       this.error('Send parse error', e);
@@ -307,14 +310,16 @@ class Sync {
 
   sendActionTo(id, name, data) {
     const peer = this.swarm.remotes[id];
-    if (!peer) return false;
+    if (!peer) {
+      return false;
+    }
 
     let payload;
 
     try {
       payload = JSON.stringify({
         action: name,
-        data: data || null
+        data: data || null,
       });
     } catch (e) {
       this.error('Send parse error', e);
@@ -326,7 +331,9 @@ class Sync {
   }
 
   setInitialState(data) {
-    if (!data || !isFinite(data.id) || !data.state) return;
+    if (!data || !isFinite(data.id) || !data.state) {
+      return;
+    }
 
     // If current state is greater than received, then ignore it
     if (isFinite(this.stateId) && this.stateId > data.id) {
@@ -348,12 +355,14 @@ class Sync {
 
     this.broadcastAction('set-state', {
       id: this.stateId,
-      state: state
+      state: state,
     });
   }
 
   receiveState(data) {
-    if (!data || !isFinite(data.id) || !data.state) return;
+    if (!data || !isFinite(data.id) || !data.state) {
+      return;
+    }
 
     this.stateId = data.id;
     this.lastState = data.state;
@@ -375,13 +384,17 @@ class Sync {
       this.pendingState = state;
       this.requestLock();
     } else {
-      
+
     }
+
+    return true;
   }
 
   fireEvent(event, data) {
     const fn = this.component[event] || this.component.props[event];
-    if (!fn) return false;
+    if (!fn) {
+      return false;
+    }
 
     if (arguments.length > 2) {
       fn.apply(this.component, [].slice.call(arguments, 1));
