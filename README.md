@@ -10,6 +10,12 @@ It uses [webrtc-swarm](https://github.com/mafintosh/webrtc-swarm) under the hood
 
 * **Lock**/**Locking** -- one component taking a control over all other components. The component taking a control is **locking** all other components. All other components are **locked**. When a component is **locked** is cannot send states to other components. Only one component at a time can be **locking** other components.
 
+## Installing
+
+```
+npm install webrtc-component
+```
+
 ## Running the server
 
 To run the server you need to install `signalhub` globally (or locally and use `./node_modules/.bin/signalhub`):
@@ -28,6 +34,8 @@ To run the server you need to install `signalhub` globally (or locally and use `
 #### As a base class example
 
 ```js
+import SyncComponent from 'webrtc-component';
+
 class Counter extends SyncComponent {
   static defaultProps = {
     servers: ['http://192.168.1.50:4242'],
@@ -103,7 +111,7 @@ defaultProps = {
     // The name of this component's connection. `signalhub` server can handle
     // many different connection from different components at the same time,
     // so it's necessary to specify an unique name of your components' connection.
-    name: 'tardis-calendar',
+    name: 'my-counter',
     // If set, component automatically calls `sync.requestLock()` (editing mode)
     // when `sync.setState()` is called. If timeout is set, locking will be
     // canceled once it's passed. By default it's set and timeout is 5 seconds
